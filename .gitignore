@@ -1,0 +1,17 @@
+# Environments
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Generated pipeline outputs (regenerate with `python -m src.pipeline`)
+data/processed/*.csv
+models/*.json
+reports/figures/*.png
+reports/summary_report.md
+
+# OS
+.DS_Store
