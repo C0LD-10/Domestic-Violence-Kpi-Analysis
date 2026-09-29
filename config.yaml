@@ -1,0 +1,74 @@
+# =============================================================================
+# config.yaml — single source of truth for paths, theme, and analysis
+# parameters. Every script in src/ reads this file rather than hardcoding
+# values, so the whole pipeline stays reproducible from one place.
+# =============================================================================
+
+project:
+  name: "domestic-violence-kpi-analysis"
+  kpi_id: "DOMV9a"
+  kpi_name: "Domestic Violence Incidents Level - Medium Risk"
+  description: >
+    Reproducible analysis pipeline for a UK local-authority administrative
+    KPI (DOMV9a), covering data validation, trend/seasonality testing,
+    structural-break detection, and an out-of-sample-validated forecast.
+
+# -----------------------------------------------------------------------
+# Paths — all relative to the project root. Scripts resolve these via
+# src/config.py::load_config(), never as literal strings elsewhere.
+# -----------------------------------------------------------------------
+paths:
+  raw_data: "data/raw/domviol.csv"
+  processed_dir: "data/processed"
+  clean_monthly_csv: "data/processed/clean_monthly.csv"
+  reconciliation_csv: "data/processed/reconciliation.csv"
+  annual_summary_csv: "data/processed/annual_summary.csv"
+  reports_dir: "reports"
+  figures_dir: "reports/figures"
+  summary_report_md: "reports/summary_report.md"
+  models_dir: "models"
+  model_file: "models/trend_seasonal_model.json"
+
+# -----------------------------------------------------------------------
+# Analysis parameters
+# -----------------------------------------------------------------------
+analysis:
+  # Financial years with complete (12/12 month) reporting — the only years
+  # eligible for the seasonality test and reconciliation check.
+  complete_financial_years:
+    - "2011/2012"
+    - "2012/2013"
+    - "2013/2014"
+    - "2014/2015"
+
+  # Contiguous training window used for trend/seasonal decomposition and
+  # for the structural-break scan (48 months, no missing data).
+  train_start_date: "2011-04-01"
+  train_end_date: "2015-03-01"
+
+  # Genuine out-of-sample holdout: real reported months immediately after
+  # the training window, used ONLY to validate the forecast (never to fit it).
+  holdout_periods:
+    - "2015/2016_Apr"
+    - "2015/2016_May"
+    - "2015/2016_Jun"
+    - "2015/2016_Jul"
+
+  significance_level: 0.05          # alpha for all hypothesis tests
+  iqr_multiplier: 1.5                # Tukey outlier rule multiplier
+  within_year_zscore_threshold: 2.0  # local outlier screen
+  structural_break_min_segment: 6    # minimum months per side of a candidate breakpoint
+
+# -----------------------------------------------------------------------
+# Visual design system — one palette shared by the notebook, the pipeline's
+# saved figures, and the Streamlit app, so all three stay visually consistent.
+# -----------------------------------------------------------------------
+theme:
+  ink:   "#1B3A4B"   # primary line / headline series
+  teal:  "#5DA9A1"   # secondary series
+  rose:  "#C1666B"   # alerts / outliers / risk
+  amber: "#D9A441"   # warnings / forecast band
+  grey:  "#8C8C89"   # neutral / baseline
+  paper: "#F7F4EE"   # figure background
+  grid:  "#DDD8CC"   # gridlines
+  text:  "#2B2B28"   # body text on charts
